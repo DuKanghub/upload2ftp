@@ -24,12 +24,13 @@ import (
 )
 
 var (
-	cfgFile string
-	ftpHost string
-	ftpPort string
-	ftpUser string
-	ftpPass string
-	ftpDir  string
+	cfgFile  string
+	ftpHost  string
+	ftpPort  string
+	ftpUser  string
+	ftpPass  string
+	ftpDir   string
+	autoFind string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -65,6 +66,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&ftpUser, "user", "u", "", "ftp用户名，必传")
 	rootCmd.PersistentFlags().StringVarP(&ftpPass, "password", "p", "", "ftp密码，必传")
 	rootCmd.PersistentFlags().StringVarP(&ftpDir, "ftpDir", "d", "/", "ftp远程目录，非必须，默认为根目录")
+	rootCmd.PersistentFlags().StringVarP(&autoFind, "autoFind", "a", "", "自动寻找目录下的文件")
 }
 
 // initConfig reads in config file and ENV variables if set.

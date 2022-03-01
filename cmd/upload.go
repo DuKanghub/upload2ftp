@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -30,15 +31,22 @@ var uploadCmd = &cobra.Command{
 	Short: "上传文件",
 	Long:  `上传文件到FTP服务器`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fileName := time.Now().Local().Format("2006-01-02-15-04-05")
-		if len(args) == 0 {
-			fmt.Println("请输入文件路径")
+		fileName := time.Now().Local().Format("20060102-150405")
+		files := args
+		var err error
+		if len(files) == 0 && autoFind != "" {
+			files, err = WalkDir(autoFind, ".bak")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+		if len(files) == 0 {
+			fmt.Println("没有找到需要上传的文件")
 			return
-		} else if len(args) == 1 {
-			fileName = filepath.Base(args[0])
 		}
 		fileName = fileName + ".zip"
-		err := pkg.ZipFiles(args, fileName)
+		err = pkg.ZipFiles(files, fileName)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -59,6 +67,23 @@ var uploadCmd = &cobra.Command{
 		_ = os.Remove(fileName)
 
 	},
+}
+
+func WalkDir(dirPth, suffix string) (files []string, err error) {
+	suffix = strings.ToUpper(suffix)                                                     //忽略后缀匹配的大小写
+	err = filepath.Walk(dirPth, func(filename string, fi os.FileInfo, err error) error { //遍历目录
+		//if err != nil { //忽略错误
+		// return err
+		//}
+		if fi.IsDir() { // 忽略目录
+			return nil
+		}
+		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) && time.Now().Sub(fi.ModTime()) <= 24*time.Hour {
+			files = append(files, filename)
+		}
+		return nil
+	})
+	return files, err
 }
 
 func init() {
