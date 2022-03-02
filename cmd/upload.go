@@ -78,7 +78,7 @@ func WalkDir(dirPth, suffix string) (files []string, err error) {
 		if fi.IsDir() { // 忽略目录
 			return nil
 		}
-		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) && time.Now().Sub(fi.ModTime()) <= 24*time.Hour {
+		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) && time.Now().Format("2020-01-01") == fi.ModTime().Format("2020-01-01") {
 			files = append(files, filename)
 		}
 		return nil
